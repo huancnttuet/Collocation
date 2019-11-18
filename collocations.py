@@ -2,15 +2,14 @@ import nltk
 import pandas as pd
 import os
 from nltk.corpus import webtext, stopwords
+from read_multi_files import load_data
 bigrams = nltk.collocations.BigramAssocMeasures()
-trigrams = nltk.collocations.TrigramAssocMeasures()
 
 ROOT_DIR = os.path.dirname(os.path.abspath(
     __file__))  # This is your Project Root
 
 # Loading the data
-words = [w.lower() for w in webtext.words(
-    ROOT_DIR+'/data/testdata.txt')]
+words = load_data("/data/blog_txt/*.txt")
 
 bigramFinder = nltk.collocations.BigramCollocationFinder.from_words(words)
 
@@ -47,6 +46,7 @@ print(filtered_bi)
 ###################################################
 
 ########Phuong phap PMI(Mutual information )#######
+bigramFinder.apply_freq_filter(20)
 bigramPMITable = pd.DataFrame(list(bigramFinder.score_ngrams(bigrams.pmi)), columns=[
                               'bigram', 'PMI']).sort_values(by='PMI', ascending=False)
 
