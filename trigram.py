@@ -1,3 +1,4 @@
+# coding=utf-8
 import nltk
 import pandas as pd
 import os
@@ -9,7 +10,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(
     __file__))  # This is your Project Root
 
 # Loading the data
-words = load_data("/data/blog_txt/*.txt")
+words = load_data("/data/data/*.txt")
 
 trigramFinder = nltk.collocations.TrigramCollocationFinder.from_words(words)
 
@@ -32,38 +33,47 @@ def rightTypesTri(ngram):
     else:
         return False
 
+
 #########Phuong phap tan so (Frequency)#########
 # bigrams
 trigram_freq = trigramFinder.ngram_fd.items()
-trigramFreqTable = pd.DataFrame(list(trigram_freq), columns=['trigram','freq']).sort_values(by='freq', ascending=False)
+trigramFreqTable = pd.DataFrame(list(trigram_freq), columns=[
+                                'trigram', 'freq']).sort_values(by='freq', ascending=False)
 # filter bigrams
-filtered_tri = trigramFreqTable[trigramFreqTable.trigram.map(lambda x: rightTypesTri(x))]
+filtered_tri = trigramFreqTable[trigramFreqTable.trigram.map(
+    lambda x: rightTypesTri(x))]
 # result
 print(filtered_tri)
 ###################################################
 
 ########Phuong phap PMI(Mutual information )#######
 trigramFinder.apply_freq_filter(20)
-trigramPMITable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.pmi)), columns=['trigram','PMI']).sort_values(by='PMI', ascending=False)
+trigramPMITable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.pmi)), columns=[
+                               'trigram', 'PMI']).sort_values(by='PMI', ascending=False)
 
 print(trigramPMITable)
 ###################################################
 
 #########Phuong phap t-test##########
-trigramTtable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.student_t)), columns=['trigram','t']).sort_values(by='t', ascending=False)
+trigramTtable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.student_t)), columns=[
+                             'trigram', 't']).sort_values(by='t', ascending=False)
 # filters
-filteredT_tri = trigramTtable[trigramTtable.trigram.map(lambda x: rightTypesTri(x))]
+filteredT_tri = trigramTtable[trigramTtable.trigram.map(
+    lambda x: rightTypesTri(x))]
 print(filteredT_tri)
 ######################################
 
 ######## Chi-Square ##################
-trigramChiTable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.chi_sq)), columns=['trigram','chi-sq']).sort_values(by='chi-sq', ascending=False)
+trigramChiTable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.chi_sq)), columns=[
+                               'trigram', 'chi-sq']).sort_values(by='chi-sq', ascending=False)
 print(trigramChiTable)
 ######################################
 
 ######## Likelihood ##################
-trigramLikTable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.likelihood_ratio)), columns=['trigram','likelihood ratio']).sort_values(by='likelihood ratio', ascending=False)
-filteredLik_tri = trigramLikTable[trigramLikTable.trigram.map(lambda x: rightTypesTri(x))]
+trigramLikTable = pd.DataFrame(list(trigramFinder.score_ngrams(trigrams.likelihood_ratio)), columns=[
+                               'trigram', 'likelihood ratio']).sort_values(by='likelihood ratio', ascending=False)
+filteredLik_tri = trigramLikTable[trigramLikTable.trigram.map(
+    lambda x: rightTypesTri(x))]
 print(filteredLik_tri)
 ######################################
 
@@ -76,5 +86,6 @@ chi_tri = trigramChiTable[:20].trigram.values
 lik_tri = filteredLik_tri[:20].trigram.values
 
 trigramsCompare = pd.DataFrame([freq_tri, pmi_tri, t_tri, chi_tri, lik_tri]).T
-trigramsCompare.columns = ['Frequency With Filter', 'PMI', 'T-test With Filter', 'Chi-Sq Test', 'Likeihood Ratio Test With Filter']
+trigramsCompare.columns = ['Frequency With Filter', 'PMI',
+                           'T-test With Filter', 'Chi-Sq Test', 'Likeihood Ratio']
 print(trigramsCompare)

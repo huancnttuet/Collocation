@@ -1,3 +1,4 @@
+# coding=utf-8
 import nltk
 import pandas as pd
 import os
@@ -85,5 +86,5 @@ lik_bi = filteredLik_bi[:20].bigram.values
 
 bigramsCompare = pd.DataFrame([freq_bi, pmi_bi, t_bi, chi_bi, lik_bi]).T
 bigramsCompare.columns = ['Frequency With Filter', 'PMI',
-                          'T-test With Filter', 'Chi-Sq Test', 'Likeihood Ratio Test With Filter']
+                          'T-test With Filter', 'Chi-Sq Test', 'Likeihood Ratio']
 print(bigramsCompare)
