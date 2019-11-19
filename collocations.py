@@ -9,7 +9,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(
     __file__))  # This is your Project Root
 
 # Loading the data
-words = load_data("/data/blog_txt/*.txt")
+words = load_data("/data/data/*.txt")
 
 bigramFinder = nltk.collocations.BigramCollocationFinder.from_words(words)
 
