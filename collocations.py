@@ -4,13 +4,15 @@ import pandas as pd
 import os
 from nltk.corpus import webtext, stopwords
 from read_multi_files import load_data
-bigrams = nltk.collocations.BigramAssocMeasures()
+import xlsxwriter
 
+bigrams = nltk.collocations.BigramAssocMeasures()
+pd.set_option('display.max_rows', 500)
 ROOT_DIR = os.path.dirname(os.path.abspath(
     __file__))  # This is your Project Root
-
+SUBJECT_NAME = 'music'
 # Loading the data
-words = load_data("/data/data/*.txt")
+words = load_data("/data/complex.com/{}/*.txt".format(SUBJECT_NAME))
 
 bigramFinder = nltk.collocations.BigramCollocationFinder.from_words(words)
 
@@ -43,7 +45,7 @@ bigramFreqTable = pd.DataFrame(list(bigram_freq), columns=[
 filtered_bi = bigramFreqTable[bigramFreqTable.bigram.map(
     lambda x: rightTypes(x))]
 # result
-print(filtered_bi)
+print(filtered_bi.head(100))
 ###################################################
 
 ########Phuong phap PMI(Mutual information )#######
@@ -51,7 +53,7 @@ bigramFinder.apply_freq_filter(20)
 bigramPMITable = pd.DataFrame(list(bigramFinder.score_ngrams(bigrams.pmi)), columns=[
                               'bigram', 'PMI']).sort_values(by='PMI', ascending=False)
 
-print(bigramPMITable)
+print(bigramPMITable.head(100))
 ###################################################
 
 #########Phuong phap t-test##########
@@ -59,13 +61,13 @@ bigramTtable = pd.DataFrame(list(bigramFinder.score_ngrams(bigrams.student_t)), 
                             'bigram', 't']).sort_values(by='t', ascending=False)
 # filters
 filteredT_bi = bigramTtable[bigramTtable.bigram.map(lambda x: rightTypes(x))]
-print(filteredT_bi)
+print(filteredT_bi.head(100))
 ######################################
 
 ######## Chi-Square ##################
 bigramChiTable = pd.DataFrame(list(bigramFinder.score_ngrams(bigrams.chi_sq)), columns=[
                               'bigram', 'chi-sq']).sort_values(by='chi-sq', ascending=False)
-print(bigramChiTable)
+print(bigramChiTable.head(100))
 ######################################
 
 ######## Likelihood ##################
@@ -73,18 +75,31 @@ bigramLikTable = pd.DataFrame(list(bigramFinder.score_ngrams(bigrams.likelihood_
                               'bigram', 'likelihood ratio']).sort_values(by='likelihood ratio', ascending=False)
 filteredLik_bi = bigramLikTable[bigramLikTable.bigram.map(
     lambda x: rightTypes(x))]
-print(filteredLik_bi)
+print(filteredLik_bi.head(100))
 ######################################
 
 
 ################## So sanh 5 phuong phap (Bigram Comparison) #################
-freq_bi = filtered_bi[:20].bigram.values
-pmi_bi = bigramPMITable[:20].bigram.values
-t_bi = filteredT_bi[:20].bigram.values
-chi_bi = bigramChiTable[:20].bigram.values
-lik_bi = filteredLik_bi[:20].bigram.values
+freq_bi = filtered_bi.bigram.values
+pmi_bi = bigramPMITable.bigram.values
+t_bi = filteredT_bi.bigram.values
+chi_bi = bigramChiTable.bigram.values
+lik_bi = filteredLik_bi.bigram.values
 
 bigramsCompare = pd.DataFrame([freq_bi, pmi_bi, t_bi, chi_bi, lik_bi]).T
 bigramsCompare.columns = ['Frequency With Filter', 'PMI',
                           'T-test With Filter', 'Chi-Sq Test', 'Likeihood Ratio']
 print(bigramsCompare)
+
+# Create a Pandas Excel writer using XlsxWriter as the engine.
+writer = pd.ExcelWriter('{}.xlsx'.format(SUBJECT_NAME), engine='xlsxwriter')
+
+# Convert the dataframe to an XlsxWriter Excel object.
+filtered_bi.to_excel(writer, sheet_name='Sheet1')
+bigramPMITable.to_excel(writer, sheet_name='Sheet2')
+filteredT_bi.to_excel(writer, sheet_name='Sheet3')
+bigramChiTable.to_excel(writer, sheet_name='Sheet4')
+filteredLik_bi.to_excel(writer, sheet_name='Sheet5')
+bigramsCompare.to_excel(writer, sheet_name='Sheet6')
+# Close the Pandas Excel writer and output the Excel file.
+writer.save()
