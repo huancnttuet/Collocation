@@ -1,4 +1,4 @@
-nltk==3.4.5
+nltk==3.9
 numpy==1.17.0
 pandas==0.25.1
 virtualenv==16.7.5
